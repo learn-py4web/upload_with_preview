@@ -36,7 +36,16 @@ url_signer = URLSigner(session)
 @action('index')
 @action.uses(db, auth, 'index.html')
 def index():
-    return dict(
-        # COMPLETE: return here any signed URLs you need.
-        my_callback_url = URL('my_callback', signer=url_signer),
-    )
+    return dict(file_upload_url = URL('file_upload', signer=url_signer))
+
+@action('file_upload', method="PUT")
+@action.uses() # Add here things you might want to use.
+def file_upload():
+    file_name = request.params.get("file_name")
+    file_type = request.params.get("file_type")
+    uploaded_file = request.body # This is a file, you can read it.
+    # Diagnostics
+    print("Uploaded", file_name, "of type", file_type)
+    print("Content:", uploaded_file.read())
+    return "ok"
+
