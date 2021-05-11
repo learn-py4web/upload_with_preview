@@ -9,10 +9,15 @@ let init = (app) => {
 
     // This is the Vue data.
     app.data = {
+        selection_done: false,
         uploading: false,
         uploaded_file: "",
-        upload_done: false,
+        uploaded: false,
+        img_url: "",
     };
+
+    // This is the file selected for upload.
+    app.file = null;
 
     app.enumerate = (a) => {
         // This adds an _idx field to each element of the array.
@@ -21,22 +26,30 @@ let init = (app) => {
         return a;
     };
 
-    app.upload_complete = function (file_name, file_type) {
-        app.vue.uploading = false;
-        app.vue.upload_done = true;
-        app.vue.uploaded_file = file_name;
-    };
-
-    app.upload_file = function (event) {
-        // We need the event to find the file.
-        let self = this;
+    app.select_file = function (event) {
         // Reads the file.
         let input = event.target;
-        let file = input.files[0];
-        if (file) {
-            self.uploading = true;
-            let file_type = file.type;
-            let file_name = file.name;
+        app.file = input.files[0];
+        if (app.file) {
+            app.vue.selection_done = true;
+            // We read the file.
+            let reader = new FileReader();
+            reader.addEventListener("load", function () {
+                app.vue.img_url = reader.result;
+            });
+            reader.readAsDataURL(app.file);
+        }
+    };
+
+    app.upload_complete = function (file_name, file_type) {
+        app.vue.uploading = false;
+        app.vue.uploaded = true;
+    };
+
+    app.upload_file = function () {
+        if (app.file) {
+            let file_type = app.file.type;
+            let file_name = app.file.name;
             let full_url = file_upload_url + "&file_name=" + encodeURIComponent(file_name)
                 + "&file_type=" + encodeURIComponent(file_type);
             // Uploads the file, using the low-level streaming interface. This avoid any
@@ -47,12 +60,13 @@ let init = (app) => {
                 app.upload_complete(file_name, file_type)
             });
             req.open("PUT", full_url, true);
-            req.send(file);
+            req.send(app.file);
         }
     };
 
     // This contains all the methods.
     app.methods = {
+        select_file: app.select_file,
         upload_file: app.upload_file,
     };
 

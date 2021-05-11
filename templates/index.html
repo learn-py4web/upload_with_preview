@@ -8,26 +8,38 @@
 
 
 <div class="section" id="vue-target" v-cloak>
-  <div class="field has-addons">
+  <div v-if="!selection_done" class="field has-addons block">
     <p class="control">
-      <div v-if="!upload_done" class="file is-info">
+      <div class="file is-info">
         <label class="file-label">
-          <input class="file-input" type="file" @change="upload_file($event)">
+          <input class="file-input" type="file"
+                 accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*"
+                 @change="select_file($event)">
           <span class="file-cta">
-            <span class="file-icon">
-              <i v-if="uploading" class="fa fa-spinner fa-pulse fa-fw"></i>
-              <i v-else class="fa fa-upload fa-fw"></i>
-            </span>
             <span class="file-label">
-              <span v-if="!uploading">Upload new file</span>
+              <span>Choose file</span>
             </span>
           </span>
         </label>
       </div>
     </p>
-    <p v-if="upload_done" class="control">
-        <span> Uploaded file: {{uploaded_file}}</span>
-    </p>
+  </div>
+  <template v-if="selection_done && !uploaded">
+    <div class="block">
+      <img width="400" :src="img_url" />
+    </div>
+    <div class="block">
+      <button class="button is-success" :disabled="uploading" @click="upload_file">
+        <span class="icon is-small">
+          <i v-if="!uploading" class="fa fa-upload"></i>
+          <i v-if="uploading" class="fa fa-spinner fa-pulse fa-fw"></i>
+        </span>
+        <span>Upload</span>
+      </button>
+    </div>
+  </template>
+  <div v-if="uploaded">
+    <i class="fa fa-check"></i> Uploaded!
   </div>
 </div>
 
